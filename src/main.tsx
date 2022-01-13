@@ -40,7 +40,7 @@ type Intlzd = Newtype<{ readonly Intlzd: unique symbol }, string>;
 
 const isoIntlzd = iso<Intlzd>();
 
-type StrictFC<P = {}> = React.FC<{ children: Intlzd } & P>;
+type StrictFC<P = {}> = React.FC<{ children?: Intlzd } & P>;
 
 const StrictCustomComponent: StrictFC = ({ children }) => <div>{children}</div>;
 
