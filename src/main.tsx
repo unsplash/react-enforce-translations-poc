@@ -1,5 +1,9 @@
 import * as React from "react";
 
+import { Newtype, iso } from "newtype-ts";
+
+type Overwrite<A, B> = Omit<A, keyof B> & B;
+
 //
 // Example using `React.FC` and the built-in native components like `a` and `img`
 //
@@ -32,20 +36,9 @@ const LooseCustomComponent: React.FC = ({ children }) => <div>{children}</div>;
 // Example using a custom `FC` type and wrappers for built-in components like `a` and `img`
 //
 
-// Copied from `io-ts`
-declare const _brand: unique symbol;
-interface Brand<B> {
-    readonly [_brand]: B;
-}
-type Branded<A, B> = A & Brand<B>;
+interface Intlzd extends Newtype<{ readonly Intlzd: unique symbol }, string> {}
 
-interface IntlzdBrand {
-    readonly Intlzd: unique symbol;
-}
-
-type Intlzd = Branded<string, IntlzdBrand>;
-
-const wrap = (s: string): Intlzd => s as Intlzd;
+const isoIntlzd = iso<Intlzd>();
 
 type StrictFC<P = {}> = React.FC<{ children: Intlzd } & P>;
 
@@ -56,11 +49,13 @@ const StrictCustomComponent: StrictFC = ({ children }) => <div>{children}</div>;
 // error ✅
 <StrictCustomComponent>{"some string"}</StrictCustomComponent>;
 // no error ✅
-<StrictCustomComponent>{wrap("some string")}</StrictCustomComponent>;
+<StrictCustomComponent>{isoIntlzd.wrap("some string")}</StrictCustomComponent>;
 
-const A: StrictFC<React.ComponentPropsWithoutRef<"a"> & { title: Intlzd }> = (
-    props
-) => <a {...props} />;
+const A: StrictFC<
+    Overwrite<React.ComponentPropsWithoutRef<"a">, { title: Intlzd }>
+> = ({ title, ...restProps }) => (
+    <a title={isoIntlzd.unwrap(title)} {...restProps} />
+);
 
 <A
     // no error ✅
@@ -76,15 +71,24 @@ const A: StrictFC<React.ComponentPropsWithoutRef<"a"> & { title: Intlzd }> = (
     // no error ✅
     rel="nofollow"
     // no error ✅
-    title={wrap("some string")}
+    title={isoIntlzd.wrap("some string")}
 >
     {/* no error ✅ */}
-    {wrap("some string")}
+    {isoIntlzd.wrap("some string")}
 </A>;
 
 const Img: StrictFC<
-    React.ComponentPropsWithoutRef<"img"> & { title: Intlzd; alt: Intlzd }
-> = (props) => <img {...props} />;
+    Overwrite<
+        React.ComponentPropsWithoutRef<"img">,
+        { title: Intlzd; alt: Intlzd }
+    >
+> = ({ title, alt, ...restProps }) => (
+    <img
+        title={isoIntlzd.unwrap(title)}
+        alt={isoIntlzd.unwrap(alt)}
+        {...restProps}
+    />
+);
 
 <Img
     // error ✅
@@ -97,9 +101,9 @@ const Img: StrictFC<
 
 <Img
     // no error ✅
-    title={wrap("some string")}
+    title={isoIntlzd.wrap("some string")}
     // no error ✅
-    alt={wrap("some string")}
+    alt={isoIntlzd.wrap("some string")}
     // no error ✅
     src="foo"
 />;
