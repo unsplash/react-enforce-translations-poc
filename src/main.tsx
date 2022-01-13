@@ -63,7 +63,7 @@ const A: StrictFC<
     // error ✅
     title="some string"
 >
-    {/* error (when we comment out `title` prop) ✅ */}
+    {/* error ✅ */}
     some string
 </A>;
 
