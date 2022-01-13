@@ -36,7 +36,7 @@ const LooseCustomComponent: React.FC = ({ children }) => <div>{children}</div>;
 // Example using a custom `FC` type and wrappers for built-in components like `a` and `img`
 //
 
-interface Intlzd extends Newtype<{ readonly Intlzd: unique symbol }, string> {}
+type Intlzd = Newtype<{ readonly Intlzd: unique symbol }, string>;
 
 const isoIntlzd = iso<Intlzd>();
 
